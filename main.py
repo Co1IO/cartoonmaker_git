@@ -15,7 +15,7 @@ longpoll = VkLongPoll(vk)
 random.seed(version=2)
 Greeting = ["Привет", "привет", "Здравствуй", "Хай", "Приветствую", "Доброго времени суток"]
 Parting = ["Пока", "пока", "Бывай", "Удачи", "До скорого", "До свидвания"]
-
+msg_type = 'None' # будем хранить тип сообщения
 # Основной цикл
 for event in longpoll.listen():
 
@@ -28,22 +28,29 @@ for event in longpoll.listen():
                 # Сообщение от пользователя
                 print(event.attachments.items())
                 if(list(event.attachments.items()) == []):
-                    print("TextMessage")
+                    msg_type = "TextMessage"
                 elif event.attachments['attach1_type'] == 'sticker':
-                    print("Sticker")
+                    msg_type = "Sticker"
                 elif event.attachments['attach1_type'] == 'doc':
                     if  ('attach1_kind' in event.attachments):
-                        print(event.attachments['attach1_kind'])
+                        msg_type = event.attachments['attach1_kind']
+                    else:
+                        msg_type = "GIF"
+                print("type = " + msg_type)
             except KeyError:
                 write_msg(event.user_id, "Что ты мне кинул?")
             #else: print(event.attachments['attach1_kind'] if event.attachments['attach1_type'] == 'doc' else 'doc')
-            request = event.text
-            if request in Greeting:
-                write_msg(event.user_id, random.choice(Greeting))
-            elif request in Parting:
-                write_msg(event.user_id, random.choice(Parting))
-            elif request == "Gif+MP3":
-                write_msg(event.user_id, "Видео")
-
-            else:
-                write_msg(event.user_id, "Я не понимаю, что Вы хотели мне сказать...\nЕсли хочешь получить классный видеоролик, то отправь мне выбранную GIF и голосовое, а остальное я сделаю сам")
+            if msg_type == "TextMessage":
+                request = event.text
+                if request in Greeting:
+                    write_msg(event.user_id, random.choice(Greeting))
+                elif request in Parting:
+                    write_msg(event.user_id, random.choice(Parting))
+                elif request == "Gif+MP3":
+                    write_msg(event.user_id, "Видео")
+                else:
+                    write_msg(event.user_id, "Я не понимаю, что Вы хотели мне сказать...\nЕсли хочешь получить классный видеоролик, то отправь мне выбранную GIF и голосовое, а остальное я сделаю сам")
+            elif msg_type == "audiomsg":
+                write_msg(event.user_id, "Я тебя услышал")
+            elif msg_type == "GIF":
+                write_msg(event.user_id, "Отличная GIF")
