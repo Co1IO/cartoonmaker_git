@@ -38,8 +38,6 @@ for event in longpoll.listen():
                 write_msg(event.user_id, "Что ты мне кинул?")
             #else: print(event.attachments['attach1_kind'] if event.attachments['attach1_type'] == 'doc' else 'doc')
             request = event.text
-                # Каменная логика ответа
-                #write_msg(event.user_id,"И тебе " + request)
             if request in Greeting:
                 write_msg(event.user_id, random.choice(Greeting))
             elif request in Parting:
