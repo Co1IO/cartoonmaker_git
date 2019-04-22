@@ -21,6 +21,7 @@ for event in longpoll.listen():
 
     # Если пришло новое сообщение
     if event.type == VkEventType.MESSAGE_NEW:
+        msg_type = 'None' # будем хранить тип сообщения
         if event.to_me:
             try:
         # Если оно имеет метку для меня( то есть бота)
@@ -41,7 +42,6 @@ for event in longpoll.listen():
                 print("type = " + msg_type)
             except KeyError:
                 write_msg(event.user_id, "Что ты мне кинул?")
-            #else: print(event.attachments['attach1_kind'] if event.attachments['attach1_type'] == 'doc' else 'doc')
             if msg_type == "TextMessage":
                 request = event.text
                 if request in Greeting:
@@ -60,4 +60,7 @@ for event in longpoll.listen():
                 write_msg(event.user_id, "Хорошая фотография, но  мне бы GIF...")
             elif msg_type == "Sticker":
                 write_msg(event.user_id, "Стикеры это классно, но пока я не умею с ними работать...")
+            else:
+                write_msg(event.user_id, "Это не GIF")
+
 
