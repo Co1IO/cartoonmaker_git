@@ -31,6 +31,8 @@ for event in longpoll.listen():
                     msg_type = "TextMessage"
                 elif event.attachments['attach1_type'] == 'sticker':
                     msg_type = "Sticker"
+                elif event.attachments['attach1_type'] == 'photo':
+                    msg_type = "Photo"
                 elif event.attachments['attach1_type'] == 'doc':
                     if  ('attach1_kind' in event.attachments):
                         msg_type = event.attachments['attach1_kind']
@@ -54,3 +56,8 @@ for event in longpoll.listen():
                 write_msg(event.user_id, "Я тебя услышал")
             elif msg_type == "GIF":
                 write_msg(event.user_id, "Отличная GIF")
+            elif msg_type == "Photo" :
+                write_msg(event.user_id, "Хорошая фотография, но  мне бы GIF...")
+            elif msg_type == "Sticker":
+                write_msg(event.user_id, "Стикеры это классно, но пока я не умею с ними работать...")
+
