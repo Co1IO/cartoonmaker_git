@@ -1,6 +1,8 @@
 import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
 import random
+import  change_voice_script
+import url_download
 
 def write_msg(user_id, message):
     vk.method('messages.send', {
@@ -9,13 +11,27 @@ def write_msg(user_id, message):
         'random_id': random.randint(1, 9999)
     })
 
+def write_vc(user_id, message):
+    vk.method('messages.send', {
+        'user_id': user_id,
+        'random_id': random.randint(1, 9999),
+        'attachment': "doc" + message
+    })
+
+def write_photo(user_id, message):
+    vk.method('messages.send', {
+        'user_id': user_id,
+        'random_id': random.randint(1, 9999),
+        'message': "photo" + message,
+        'attachment': "doc" + message
+    })
+
 vk = vk_api.VkApi(token = "6e6e50ff9bb646bbbc7cf03d0a7fa7a21d22714ee7d0b2eae5ad9b69840d9ab9dbfc2bb6530773fb2d7be")
 longpoll = VkLongPoll(vk)
 
 random.seed(version=2)
 Greeting = ["Привет", "привет", "Здравствуй", "Хай", "Приветствую", "Доброго времени суток"]
 Parting = ["Пока", "пока", "Бывай", "Удачи", "До скорого", "До свидвания"]
-msg_type = 'None' # будем хранить тип сообщения
 # Основной цикл
 for event in longpoll.listen():
 
@@ -54,10 +70,14 @@ for event in longpoll.listen():
                     write_msg(event.user_id, "Я не понимаю, что Вы хотели мне сказать...\nЕсли хочешь получить классный видеоролик, то отправь мне выбранную GIF и голосовое, а остальное я сделаю сам")
             elif msg_type == "audiomsg":
                 write_msg(event.user_id, "Я тебя услышал")
+                urlv = event.attachments["attach1"]
+                write_vc(event.user_id, urlv)
             elif msg_type == "GIF":
                 write_msg(event.user_id, "Отличная GIF")
-            elif msg_type == "Photo" :
+            elif msg_type == "Photo":
                 write_msg(event.user_id, "Хорошая фотография, но  мне бы GIF...")
+                urlp = event.attachments["attach1"]
+                write_photo(event.user_id, urlp)
             elif msg_type == "Sticker":
                 write_msg(event.user_id, "Стикеры это классно, но пока я не умею с ними работать...")
             else:
