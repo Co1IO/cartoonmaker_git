@@ -1,8 +1,9 @@
 import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
 import random
-import  change_voice_script
-import url_download
+#import  change_voice_script
+# import url_download
+
 
 def write_msg(user_id, message):
     vk.method('messages.send', {
@@ -67,11 +68,12 @@ for event in longpoll.listen():
                 elif request == "Gif+MP3":
                     write_msg(event.user_id, "Видео")
                 else:
-                    write_msg(event.user_id, "Я не понимаю, что Вы хотели мне сказать...\nЕсли хочешь получить классный видеоролик, то отправь мне выбранную GIF и голосовое, а остальное я сделаю сам")
+                    write_msg(event.user_id, "Я не понимаю, что Вы хотели мне сказать...\nЕсли хочешь получить классный видеоролик, то отправь мне выбранную GIF и голосовое, а остальное я сделаю сам\nGIF можно взять здесь\nhttps://gifer.com/ru/gifs/%D0%BF%D0%B8%D0%BA%D0%B0%D1%87%D1%83")
             elif msg_type == "audiomsg":
                 write_msg(event.user_id, "Я тебя услышал")
-                urlv = event.attachments["attach1"]
-                write_vc(event.user_id, urlv)
+                #print(vk_api.message.getById())
+                # urlv = event.attachments["attach1"]
+                # write_vc(event.user_id, urlv)
             elif msg_type == "GIF":
                 write_msg(event.user_id, "Отличная GIF")
             elif msg_type == "Photo":
