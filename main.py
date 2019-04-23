@@ -1,8 +1,21 @@
 import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
 import random
+import requests
+import datetime
+import json
+import os
+from vk_api import VkUpload
 #import  change_voice_script
-# import url_download
+import urllib.request
+import shutil
+
+def downld(url):
+    file_name = url.split('/')[-1]
+    # Download the file from `url` and save it locally under `file_name`:
+    with urllib.request.urlopen(url) as response, open(file_name, 'wb') as out_file:
+        shutil.copyfileobj(response, out_file)
+
 
 
 def write_msg(user_id, message):
@@ -26,11 +39,22 @@ def write_photo(user_id, message):
         'message': "photo" + message,
         'attachment': "doc" + message
     })
+def write_video(user_id):
+    a = vk.method("video.save", {"name": "test", "description": "Test bot"})
+    b = requests.post(a["upload_url"], files = {"video_file": open("Stas.MOV", "rb")}).json()
+    c = "video{}_{}".format(b["owner_id"], b["video_id"])
+    vk.method("message.senf", {"peer_id": user_id, "attachment": c})
+
+
+
 
 vk = vk_api.VkApi(token = "6e6e50ff9bb646bbbc7cf03d0a7fa7a21d22714ee7d0b2eae5ad9b69840d9ab9dbfc2bb6530773fb2d7be")
 longpoll = VkLongPoll(vk)
-
+session = requests.Session()
 random.seed(version=2)
+upload = VkUpload(vk)
+url_gif = ''
+url_audio_mes = ''
 Greeting = ["Привет", "привет", "Здравствуй", "Хай", "Приветствую", "Доброго времени суток"]
 Parting = ["Пока", "пока", "Бывай", "Удачи", "До скорого", "До свидвания"]
 # Основной цикл
@@ -44,7 +68,6 @@ for event in longpoll.listen():
         # Если оно имеет метку для меня( то есть бота)
 
                 # Сообщение от пользователя
-                print(event.attachments.items())
                 if(list(event.attachments.items()) == []):
                     msg_type = "TextMessage"
                 elif event.attachments['attach1_type'] == 'sticker':
@@ -71,18 +94,18 @@ for event in longpoll.listen():
                     write_msg(event.user_id, "Я не понимаю, что Вы хотели мне сказать...\nЕсли хочешь получить классный видеоролик, то отправь мне выбранную GIF и голосовое, а остальное я сделаю сам\nGIF можно взять здесь\nhttps://gifer.com/ru/gifs/%D0%BF%D0%B8%D0%BA%D0%B0%D1%87%D1%83")
             elif msg_type == "audiomsg":
                 write_msg(event.user_id, "Я тебя услышал")
-                #print(vk_api.message.getById())
-                # urlv = event.attachments["attach1"]
-                # write_vc(event.user_id, urlv)
+                url_audio_mes = vk.method("messages.getById", {"message_ids": event.message_id})['items'][0]['attachments'][0]['audio_message']['link_mp3']
             elif msg_type == "GIF":
                 write_msg(event.user_id, "Отличная GIF")
+                url_gif = vk.method("messages.getById", {"message_ids": event.message_id})['items'][0]['attachments'][0]['doc']['url']
             elif msg_type == "Photo":
                 write_msg(event.user_id, "Хорошая фотография, но  мне бы GIF...")
-                urlp = event.attachments["attach1"]
-                write_photo(event.user_id, urlp)
             elif msg_type == "Sticker":
                 write_msg(event.user_id, "Стикеры это классно, но пока я не умею с ними работать...")
             else:
                 write_msg(event.user_id, "Это не GIF")
-
+        if (url_audio_mes != ''):
+            downld(url_audio_mes)
+        if (url_gif != ''):
+            downld(url_gif)
 
