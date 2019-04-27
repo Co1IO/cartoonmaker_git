@@ -11,13 +11,13 @@ import urllib.request
 import shutil
 import yadisk
 
-def downld(url):
+def downld(url, usr=''):
     file_name = url.split('/')[-1]
     # Download the file from `url` and save it locally under `file_name`:
     if ('mp3' in file_name):
-        file_name = 'voice.mp3'
+        file_name = usr + 'voice.mp3'
     else:
-        file_name = 'gifka.gif'
+        file_name = usr + 'gifka.gif'
     with urllib.request.urlopen(url) as response, open(file_name, 'wb') as out_file:
         shutil.copyfileobj(response, out_file)
     out_file.close()
@@ -63,7 +63,8 @@ random.seed(version=2)
 upload = VkUpload(vk)
 url_gif = ''
 url_audio_mes = ''
-g, v = 0, 0
+v = dict()
+g = dict()
 Greeting = ["Привет", "привет", "Здравствуй", "Хай", "Приветствую", "Доброго времени суток"]
 Parting = ["Пока", "пока", "Бывай", "Удачи", "До скорого", "До свидания"]
 
@@ -71,7 +72,8 @@ Parting = ["Пока", "пока", "Бывай", "Удачи", "До скоро�
 for event in longpoll.listen():
     # Если пришло новое сообщение
     if (event.type == VkEventType.MESSAGE_NEW) and event.to_me:
-        msg_type = 'None' # будем хранить тип сообщения
+        msg_type = 'None' # будем хранить тип 
+        uid = str(event.user_id)
         if event.to_me:
             try:
         # Если оно имеет метку для меня( то есть бота)
@@ -101,10 +103,7 @@ for event in longpoll.listen():
                     write_msg(event.user_id, "Видео")
                 elif request == "Спасибо":
                     write_msg(event.user_id, "Приходите еще")
-                    try:
-                        yan_d.remove("Video/FINAL.avi")
-                    except:
-                        pass
+                    
                 else:
                     write_msg(event.user_id, "Я не понимаю, что Вы хотели мне сказать...\nЕсли хочешь получить классный видеоролик, то отправь мне выбранную GIF и голосовое, а остальное я сделаю сам\nGIF можно взять здесь\nhttps://gifer.com/ru/gifs/%D0%BF%D0%B8%D0%BA%D0%B0%D1%87%D1%83")
             elif msg_type == "audiomsg":
@@ -121,24 +120,26 @@ for event in longpoll.listen():
                 write_msg(event.user_id, "Это не GIF")
         print('Я тут')
         if (url_audio_mes != ''):
-            downld(url_audio_mes)
-            v = 1
+            downld(url_audio_mes, uid)
+            v[uid] = 1
             url_audio_mes = ''
             print('Я скачал голос')
         if (url_gif != ''):
-            g = 1
-            downld(url_gif)
+            downld(url_gif, uid)
+            g[uid] = 1
             url_gif = ''
             print('Я скачал gif')
-        if (v+g == 2):
-            os.system("python3 create_f.py voice.mp3 gifka.gif")
+        if not(uid in v.keys() and uid in g.keys()):
+            continue
+        if (v[uid]+g[uid] == 2):
+            os.system("python3 create_f.py " + uid + "voice.mp3 " + uid + "gifka.gif " + uid)
             try:
-                yan_d.remove("Video/FINAL.avi")
+                yan_d.remove("Video/" + uid + "FINAL.avi")
             except:
                 pass
-            yan_d.upload("FINAL.avi", "Video/FINAL.avi")
-            write_msg(event.user_id, "Ваше видео\n" + "https://yadi.sk/d/SxAF3JNhsau7kw/FINAL.avi")
-            os.system("rm FINAL.avi")
-            v, g = 0, 0
+            yan_d.upload(uid + "FINAL.avi", "Video/" + uid + "FINAL.avi")
+            write_msg(event.user_id, "Ваше видео\n" + "https://yadi.sk/d/SxAF3JNhsau7kw/" + uid + "FINAL.avi")
+            os.system("rm " + uid + "FINAL.avi")
+            v[uid], g[uid] = 0, 0
         
-        print(g,' ', v)
+        # print(g,' ', v)

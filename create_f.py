@@ -57,7 +57,7 @@ os.system("ffmpeg  -i " + video_name + " " + video_name[:-4:] + '.avi')
 os.system("rm " + video_name)
 video_name = video_name[:-4:] + '.avi'
 
-os.system("ffmpeg -i gifka.avi 2>&1 | grep Duration | awk '{print $2}' | tr -d , >> duration.txt")
+os.system("ffmpeg -i " + uid + "gifka.avi 2>&1 | grep Duration | awk '{print $2}' | tr -d , >> duration.txt")
 f = open("duration.txt", 'r')
 s = f.read()
 print(s)
@@ -69,7 +69,7 @@ f.close()
 os.system("rm duration.txt")
 
 
-os.system("ffmpeg -i voice.wav 2>&1 | grep Duration | awk '{print $2}' | tr -d , >> dur.txt")
+os.system("ffmpeg -i " + uid + "voice.wav 2>&1 | grep Duration | awk '{print $2}' | tr -d , >> dur.txt")
 f = open("dur.txt", 'r')
 l = f.read()
 print(l)
@@ -94,7 +94,7 @@ if times > 1:
 else:
     times = 1
 os.system("cat " + (video_name + ' ') * times + "| ffmpeg -f avi -i - video" + "_out_" + video_name[:-4:] +".avi > /dev/null")
-os.system("ffmpeg -i " + audio_name + " -i " + "video_out_" + video_name[:-4:] + ".avi " + "../data" + uid + "FINAL.avi > /dev/null")
+os.system("ffmpeg -i " + audio_name + " -i " + "video_out_" + video_name[:-4:] + ".avi " + "" + uid + "FINAL.avi > /dev/null")
 os.system("rm " "video_out_" + video_name[:-4:] + ".avi")
 os.system("rm " + audio_name)
 os.system("rm " + video_name)
