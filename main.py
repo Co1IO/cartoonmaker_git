@@ -11,17 +11,16 @@ import urllib.request
 import shutil
 import yadisk
 
-def downld(url, usr=''):
+def downld(url):
     file_name = url.split('/')[-1]
     # Download the file from `url` and save it locally under `file_name`:
     if ('mp3' in file_name):
-        file_name = usr+'voice.mp3'
+        file_name = 'voice.mp3'
     else:
-        file_name = usr+'gifka.gif'
+        file_name = 'gifka.gif'
     with urllib.request.urlopen(url) as response, open(file_name, 'wb') as out_file:
         shutil.copyfileobj(response, out_file)
     out_file.close()
-    return file_name
 
 
 
@@ -56,7 +55,7 @@ def write_video(user_id):
 
 
 
-# yan_d = yadisk.YaDisk(token="AQAAAAAz2DAmAAWhKfyxW_mmgE0Todp1ZRFOm8E")
+yan_d = yadisk.YaDisk(token="AQAAAAAYaeNqAAWinCyW9sBTXUn0rvotytdQX44")
 vk = vk_api.VkApi(token = "6e6e50ff9bb646bbbc7cf03d0a7fa7a21d22714ee7d0b2eae5ad9b69840d9ab9dbfc2bb6530773fb2d7be")
 longpoll = VkLongPoll(vk)
 session = requests.Session()
@@ -67,17 +66,16 @@ url_audio_mes = ''
 g, v = 0, 0
 Greeting = ["Привет", "привет", "Здравствуй", "Хай", "Приветствую", "Доброго времени суток"]
 Parting = ["Пока", "пока", "Бывай", "Удачи", "До скорого", "До свидания"]
-v = {}
-g = {}
+
 # Основной цикл
 for event in longpoll.listen():
     # Если пришло новое сообщение
     if (event.type == VkEventType.MESSAGE_NEW) and event.to_me:
         msg_type = 'None' # будем хранить тип сообщения
-        uid = event.user_id
         if event.to_me:
             try:
         # Если оно имеет метку для меня( то есть бота)
+
                 # Сообщение от пользователя
                 if(list(event.attachments.items()) == []):
                     msg_type = "TextMessage"
@@ -103,20 +101,18 @@ for event in longpoll.listen():
                     write_msg(event.user_id, "Видео")
                 elif request == "Спасибо":
                     write_msg(event.user_id, "Приходите еще")
-                    # try:
-                    #     # yan_d.remove("Video/FINAL.avi")
-                    # except yadisk.exceptions.PathNotFoundError:
-                    #     print("The file is already deleted")
+                    try:
+                        yan_d.remove("Video/FINAL.avi")
+                    except:
+                        pass
                 else:
                     write_msg(event.user_id, "Я не понимаю, что Вы хотели мне сказать...\nЕсли хочешь получить классный видеоролик, то отправь мне выбранную GIF и голосовое, а остальное я сделаю сам\nGIF можно взять здесь\nhttps://gifer.com/ru/gifs/%D0%BF%D0%B8%D0%BA%D0%B0%D1%87%D1%83")
             elif msg_type == "audiomsg":
                 write_msg(event.user_id, "Я тебя услышал")
                 url_audio_mes = vk.method("messages.getById", {"message_ids": event.message_id})['items'][0]['attachments'][0]['audio_message']['link_mp3']
-                v[uid] = 1
             elif msg_type == "GIF":
                 write_msg(event.user_id, "Отличная GIF")
                 url_gif = vk.method("messages.getById", {"message_ids": event.message_id})['items'][0]['attachments'][0]['doc']['url']
-                g[uid] = 1
             elif msg_type == "Photo":
                 write_msg(event.user_id, "Хорошая фотография, но  мне бы GIF...")
             elif msg_type == "Sticker":
@@ -125,23 +121,24 @@ for event in longpoll.listen():
                 write_msg(event.user_id, "Это не GIF")
         print('Я тут')
         if (url_audio_mes != ''):
-            a_name = downld(url_audio_mes, usr=uid)
+            downld(url_audio_mes)
             v = 1
             url_audio_mes = ''
             print('Я скачал голос')
         if (url_gif != ''):
-            g = 1;
-            g_name = downld(url_gif, usr=uid)
+            g = 1
+            downld(url_gif)
             url_gif = ''
             print('Я скачал gif')
-        if (v[uid] + g[uid] == 2):
+        if (v+g == 2):
+            os.system("python3 create_f.py voice.mp3 gifka.gif")
             try:
-                os.system("rm ../data/" + uid + "FINAL.avi")
+                yan_d.remove("Video/FINAL.avi")
             except:
                 pass
-            os.system("python3 create_f.py " + a_name + ' ' + g_name + ' ' + uid) # > dev/null ??? & subprocess       
-            write_msg(event.user_id, "Ваше видео\n" + 'yra200111ruz.fvds.ru/data/' + uid + 'FINAL.avi')
-            
+            yan_d.upload("FINAL.avi", "Video/FINAL.avi")
+            write_msg(event.user_id, "Ваше видео\n" + "https://yadi.sk/d/SxAF3JNhsau7kw/FINAL.avi")
+            os.system("rm FINAL.avi")
             v, g = 0, 0
         
         print(g,' ', v)
